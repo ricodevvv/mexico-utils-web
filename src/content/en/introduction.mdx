@@ -1,0 +1,57 @@
+# Introduction
+
+mexico-utils validates, parses and generates the data every Mexican form asks for: CURP, RFC, CLABE, NSS, postal codes, phone numbers and amounts in words. It has no dependencies, ships ESM and CommonJS with types, and runs in Node, browsers and edge runtimes.
+
+## Install
+
+```bash
+npm i mexico-utils
+```
+
+pnpm, yarn and bun work the same way.
+
+## Quick look
+
+```ts
+import { parseCurp, checkRfc, parseClabe, amountToWords } from "mexico-utils";
+
+parseCurp("LOOA531113HTCPBN07");
+// { birthDate: "1953-11-13", sex: "male", state: { name: "Tabasco", ... }, bornAbroad: false }
+
+parseClabe("002010077777777771")?.bank;
+// { code: "002", name: "Banamex" }
+
+amountToWords(1234.5);
+// "MIL DOSCIENTOS TREINTA Y CUATRO PESOS 50/100 M.N."
+```
+
+## How the API works
+
+Every document type comes with the same set of functions, so once you know one you know them all:
+
+| Function | Returns |
+| --- | --- |
+| `isValidX(value)` | `true` or `false` |
+| `parseX(value)` | The parsed data, or `null` |
+| `checkX(value)` | `{ ok: true, value }` or `{ ok: false, error }` |
+| `xCheckDigit(...)` | The check digit, in case you need to build one |
+
+Input gets cleaned before it's checked, so spaces, dashes and lowercase are fine.
+
+## Errors in your own words
+
+`checkX` never returns a message. It returns an error code, and you decide what to show. That way your form speaks the same language as the rest of your app.
+
+```ts
+const messages = {
+  format: "A CURP has 18 characters",
+  date: "That birth date doesn't exist",
+  state: "Unknown state",
+  "check-digit": "Double-check you copied it right",
+};
+
+const result = checkCurp(input);
+if (!result.ok) showError(messages[result.error]);
+```
+
+The codes are typed, so TypeScript tells you if you forget one.

@@ -1,0 +1,51 @@
+# RFC
+
+The Registro Federal de Contribuyentes, the tax ID the SAT gives people and companies.
+
+<Demo kind="rfc" />
+
+## Validate and parse
+
+```ts
+import { checkRfc } from "mexico-utils";
+
+checkRfc("EKU9003173C9");
+// {
+//   ok: true,
+//   value: {
+//     rfc: "EKU9003173C9",
+//     type: "company",
+//     date: "1990-03-17",
+//     homoclave: "3C",
+//     checkDigitMatches: true
+//   }
+// }
+```
+
+| `type` | What it is | Length |
+| --- | --- | --- |
+| `person` | Persona física | 13 |
+| `company` | Persona moral | 12 |
+| `generic` | `XAXX010101000` or `XEXX010101000` | 13 |
+
+`date` is the birth date for people and the incorporation date for companies.
+
+## The check digit
+
+The last character is computed with SAT's algorithm and reported as `checkDigitMatches`. It doesn't make an RFC invalid unless you ask for it:
+
+```ts
+checkRfc("CACX7605101P9");
+// { ok: true, value: { ..., checkDigitMatches: false } }
+
+checkRfc("CACX7605101P9", { checkDigit: true });
+// { ok: false, error: "check-digit" }
+```
+
+Why: some real RFCs, mostly old ones, don't match their own check digit. Turning someone away because SAT made a mistake decades ago is worse than letting the RFC through. If you only deal with new RFCs, turn it on.
+
+| Error | Meaning |
+| --- | --- |
+| `format` | Wrong length or characters in the wrong place |
+| `date` | The date doesn't exist |
+| `check-digit` | Only with `{ checkDigit: true }` |

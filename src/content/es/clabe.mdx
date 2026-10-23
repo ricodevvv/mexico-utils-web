@@ -1,0 +1,45 @@
+# CLABE
+
+La Clave Bancaria Estandarizada de 18 dígitos que se usa para transferencias SPEI.
+
+<Demo kind="clabe" />
+
+## Validar y desglosar
+
+```ts
+import { parseClabe } from "mexico-utils";
+
+parseClabe("002 010 07777777777 1");
+// {
+//   clabe: "002010077777777771",
+//   bank: { code: "002", name: "Banamex" },
+//   plaza: "010",
+//   account: "07777777777"
+// }
+```
+
+Los dígitos se reparten así:
+
+| Dígitos | Qué son |
+| --- | --- |
+| 1–3 | Banco |
+| 4–6 | Plaza (ciudad) |
+| 7–17 | Número de cuenta |
+| 18 | Dígito verificador |
+
+La lista de bancos sale de la lista de participantes de SPEI de Banxico y se exporta como `BANKS`. Puedes verla completa en la [página de bancos](../banks). Si la clave no está en la lista, la CLABE sigue siendo válida y `bank` es `null`, porque entran participantes nuevos todo el tiempo.
+
+| Error | Qué significa |
+| --- | --- |
+| `format` | No son 18 dígitos |
+| `check-digit` | El último dígito no coincide. Casi siempre es un error al copiar |
+
+## Generar
+
+```ts
+import { generateClabe } from "mexico-utils";
+
+generateClabe("012", "180", "01234567890");
+```
+
+Rellena cada parte con ceros y agrega el dígito verificador.

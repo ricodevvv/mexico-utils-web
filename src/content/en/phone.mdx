@@ -1,0 +1,31 @@
+# Phone numbers
+
+People write Mexican numbers in a lot of ways. These functions turn all of them into one.
+
+<Demo kind="phone" />
+
+## Normalize
+
+```ts
+import { normalizePhone } from "mexico-utils";
+
+normalizePhone("773 152 1627");        // "+527731521627"
+normalizePhone("+52 1 773 152 1627");  // "+527731521627"
+normalizePhone("045 55 1234 5678");    // "+525512345678"
+normalizePhone("01 (773) 152-1627");   // "+527731521627"
+normalizePhone("152 1627");            // null
+```
+
+It understands `+52` and `0052`, the old `+521` that mobiles used to need, and the old `01`, `044` and `045` prefixes. The result is E.164, ready to store or to send to Twilio or WhatsApp.
+
+## Format
+
+```ts
+import { formatPhone } from "mexico-utils";
+
+formatPhone("5512345678");  // "55 1234 5678"
+formatPhone("7731521627");  // "773 152 1627"
+formatPhone("7731521627", { international: true }); // "+52 773 152 1627"
+```
+
+Mexico City (55, 56), Guadalajara (33) and Monterrey (81) have two-digit area codes. Everywhere else has three.

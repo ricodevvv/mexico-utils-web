@@ -1,0 +1,37 @@
+# States & postal codes
+
+## Postal codes
+
+The first two digits of a postal code tell you the state. Mexico City uses 01 to 16, and the states go from 20 to 99 in alphabetical order.
+
+<Demo kind="postal" />
+
+```ts
+import { stateFromPostalCode, normalizePostalCode } from "mexico-utils";
+
+stateFromPostalCode("42800")?.name; // "Hidalgo"
+stateFromPostalCode(1000)?.name;    // "Ciudad de México", the leading zero comes back
+stateFromPostalCode("17000");       // null, nobody uses 17
+
+normalizePostalCode(1000);          // "01000"
+```
+
+You get the state, not the municipality. That needs SEPOMEX's full catalog, which is several megabytes.
+
+## States
+
+`STATES` has the 32 federal entities in INEGI order, each with every code you're likely to need:
+
+```ts
+import { STATES, findState } from "mexico-utils";
+
+findState("hidalgo");
+// { name: "Hidalgo", curp: "HG", inegi: "13", iso: "MX-HID", postalPrefixes: [42, 43] }
+
+findState("CDMX");       // Ciudad de México
+findState("Nuevo Leon"); // accents and case don't matter
+findState("MX-YUC");     // ISO code
+findState(15);           // INEGI code, Estado de México
+```
+
+`findState` also understands "Edomex", "DF" and the long official names like "Veracruz de Ignacio de la Llave". The full table is on the [states page](../states).

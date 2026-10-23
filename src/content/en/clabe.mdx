@@ -1,0 +1,45 @@
+# CLABE
+
+The 18-digit interbank account number used for SPEI transfers.
+
+<Demo kind="clabe" />
+
+## Validate and parse
+
+```ts
+import { parseClabe } from "mexico-utils";
+
+parseClabe("002 010 07777777777 1");
+// {
+//   clabe: "002010077777777771",
+//   bank: { code: "002", name: "Banamex" },
+//   plaza: "010",
+//   account: "07777777777"
+// }
+```
+
+The digits break down like this:
+
+| Digits | Meaning |
+| --- | --- |
+| 1–3 | Bank |
+| 4–6 | Plaza (city) |
+| 7–17 | Account number |
+| 18 | Check digit |
+
+The bank list comes from Banxico's list of SPEI participants and is exported as `BANKS`. You can browse it on the [banks page](../banks). If the code isn't in the list, the CLABE is still valid and `bank` is `null`, because new participants show up all the time.
+
+| Error | Meaning |
+| --- | --- |
+| `format` | Not 18 digits |
+| `check-digit` | The last digit doesn't match. Almost always a typo |
+
+## Generate
+
+```ts
+import { generateClabe } from "mexico-utils";
+
+generateClabe("012", "180", "01234567890");
+```
+
+It pads each part with zeros and adds the check digit.

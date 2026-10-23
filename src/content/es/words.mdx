@@ -1,0 +1,44 @@
+# Cantidad con letra
+
+Como escriben las cantidades las facturas, los recibos, los contratos y los cheques.
+
+<Demo kind="amount" value="1234.50" />
+
+## Cantidades
+
+```ts
+import { amountToWords } from "mexico-utils";
+
+amountToWords(1234.5);      // "MIL DOSCIENTOS TREINTA Y CUATRO PESOS 50/100 M.N."
+amountToWords(1);           // "UN PESO 00/100 M.N."
+amountToWords("$21,000.99"); // "VEINTIÚN MIL PESOS 99/100 M.N."
+amountToWords(1_000_000);   // "UN MILLÓN DE PESOS 00/100 M.N."
+```
+
+Acepta números o textos como `"$1,500.00"`, y resuelve bien las partes difíciles:
+
+- "un peso", pero "dos pesos"
+- "veintiún mil" y "ciento un mil", no "veintiuno mil"
+- "un millón de pesos" cuando son millones exactos
+- centavos redondeados a dos dígitos
+
+| Opción | Valores | Por defecto |
+| --- | --- | --- |
+| `currency` | `"MXN"`, `"USD"`, `"EUR"` | `"MXN"` |
+| `case` | `"upper"`, `"lower"` | `"upper"` |
+
+```ts
+amountToWords(100.1, { currency: "USD", case: "lower" });
+// "cien dólares 10/100 USD"
+```
+
+## Números enteros
+
+```ts
+import { numberToWords } from "mexico-utils";
+
+numberToWords(2026); // "DOS MIL VEINTISÉIS"
+numberToWords(101);  // "CIENTO UNO"
+```
+
+Las dos llegan hasta 999,999,999,999 y lanzan un `RangeError` con números negativos.

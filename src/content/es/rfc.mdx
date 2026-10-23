@@ -1,0 +1,51 @@
+# RFC
+
+El Registro Federal de Contribuyentes, la clave que el SAT les da a personas y empresas.
+
+<Demo kind="rfc" />
+
+## Validar y desglosar
+
+```ts
+import { checkRfc } from "mexico-utils";
+
+checkRfc("EKU9003173C9");
+// {
+//   ok: true,
+//   value: {
+//     rfc: "EKU9003173C9",
+//     type: "company",
+//     date: "1990-03-17",
+//     homoclave: "3C",
+//     checkDigitMatches: true
+//   }
+// }
+```
+
+| `type` | Qué es | Largo |
+| --- | --- | --- |
+| `person` | Persona física | 13 |
+| `company` | Persona moral | 12 |
+| `generic` | `XAXX010101000` o `XEXX010101000` | 13 |
+
+`date` es la fecha de nacimiento para personas y la de constitución para empresas.
+
+## El dígito verificador
+
+El último carácter se calcula con el algoritmo del SAT y se reporta en `checkDigitMatches`. No invalida el RFC a menos que se lo pidas:
+
+```ts
+checkRfc("CACX7605101P9");
+// { ok: true, value: { ..., checkDigitMatches: false } }
+
+checkRfc("CACX7605101P9", { checkDigit: true });
+// { ok: false, error: "check-digit" }
+```
+
+La razón: algunos RFC reales, sobre todo viejos, no coinciden con su propio dígito verificador. Rechazar a alguien por un error que el SAT cometió hace décadas es peor que dejar pasar el RFC. Si solo manejas RFC nuevos, actívalo.
+
+| Error | Qué significa |
+| --- | --- |
+| `format` | Largo incorrecto o caracteres fuera de lugar |
+| `date` | La fecha no existe |
+| `check-digit` | Solo con `{ checkDigit: true }` |

@@ -1,0 +1,59 @@
+# CURP
+
+La Clave Única de Registro de Población. 18 caracteres que guardan el nombre, la fecha de nacimiento, el sexo y el estado de nacimiento.
+
+<Demo kind="curp" />
+
+## Validar y desglosar
+
+```ts
+import { checkCurp, parseCurp, isValidCurp } from "mexico-utils";
+
+parseCurp("LOOA531113HTCPBN07");
+// {
+//   curp: "LOOA531113HTCPBN07",
+//   birthDate: "1953-11-13",
+//   sex: "male",
+//   state: { name: "Tabasco", curp: "TC", inegi: "27", iso: "MX-TAB", ... },
+//   bornAbroad: false
+// }
+```
+
+`checkCurp` revisa cuatro cosas, en este orden, y se detiene en la primera que falle:
+
+| Error | Qué significa |
+| --- | --- |
+| `format` | Largo incorrecto o caracteres fuera de lugar |
+| `date` | La fecha de nacimiento no existe, como un 30 de febrero |
+| `state` | La clave del estado no existe |
+| `check-digit` | El último dígito no coincide. Casi siempre es un error al copiar |
+
+`sex` es `"male"`, `"female"` o `"nonbinary"` (RENAPO agregó la `X` en 2022). Las personas nacidas en el extranjero tienen `state: null` y `bornAbroad: true`.
+
+## Generar
+
+```ts
+import { generateCurp } from "mexico-utils";
+
+generateCurp({
+  name: "Enrique",
+  firstLastName: "Peña",
+  secondLastName: "Nieto",
+  birthDate: "1966-07-20",
+  sex: "male",
+  state: "Estado de México",
+});
+// "PXNE660720HMCXTN06"
+```
+
+Sigue las reglas de RENAPO:
+
+- Las partículas como "de", "la", "del" o "van" se saltan, así que "de la Cruz" usa "Cruz".
+- "María" y "José" ceden su lugar al segundo nombre cuando lo hay.
+- La Ñ se vuelve X.
+- Cuando las primeras cuatro letras forman una palabra altisonante, la segunda se vuelve X. Por eso la CURP de Peña Nieto empieza con PXNE.
+- `state` acepta el nombre, cualquiera de sus claves, o `"NE"` para quien nació en el extranjero. `birthDate` acepta `AAAA-MM-DD` o un `Date`.
+
+Pruébalo en el [playground](../playground?tool=curp), donde ves de dónde sale cada carácter.
+
+> El carácter 17 lo asigna RENAPO para distinguir a personas que de otro modo tendrían la misma CURP. `generateCurp` usa `0` para quien nació antes del 2000 y `A` después, que es lo que le toca a casi todos. A unas cuantas personas les tocan otros dos últimos caracteres, así que úsalo para prellenar o revisar un formulario, no como fuente oficial.

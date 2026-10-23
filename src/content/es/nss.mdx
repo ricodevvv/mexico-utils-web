@@ -1,0 +1,34 @@
+# NSS
+
+El Número de Seguridad Social que el IMSS le da a cada trabajador. 11 dígitos.
+
+<Demo kind="nss" />
+
+## Validar y desglosar
+
+```ts
+import { parseNss } from "mexico-utils";
+
+parseNss("72795608040");
+// {
+//   nss: "72795608040",
+//   subdelegation: "72",
+//   registrationYear: 1979,
+//   birthYear: 1956
+// }
+```
+
+| Dígitos | Qué son |
+| --- | --- |
+| 1–2 | Subdelegación del IMSS |
+| 3–4 | Año de alta |
+| 5–6 | Año de nacimiento |
+| 7–10 | Número consecutivo |
+| 11 | Dígito verificador (Luhn) |
+
+Los años solo traen dos dígitos, así que se deducen: el año de alta no puede estar en el futuro y el de nacimiento no puede ser después del de alta.
+
+| Error | Qué significa |
+| --- | --- |
+| `format` | No son 11 dígitos |
+| `check-digit` | El último dígito no coincide |

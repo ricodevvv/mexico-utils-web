@@ -1,0 +1,59 @@
+# CURP
+
+The Clave Única de Registro de Población. 18 characters that encode someone's name, birth date, sex and birth state.
+
+<Demo kind="curp" />
+
+## Validate and parse
+
+```ts
+import { checkCurp, parseCurp, isValidCurp } from "mexico-utils";
+
+parseCurp("LOOA531113HTCPBN07");
+// {
+//   curp: "LOOA531113HTCPBN07",
+//   birthDate: "1953-11-13",
+//   sex: "male",
+//   state: { name: "Tabasco", curp: "TC", inegi: "27", iso: "MX-TAB", ... },
+//   bornAbroad: false
+// }
+```
+
+`checkCurp` looks at four things, in this order, and stops at the first one that fails:
+
+| Error | Meaning |
+| --- | --- |
+| `format` | Wrong length or characters in the wrong place |
+| `date` | The birth date doesn't exist, like February 30 |
+| `state` | The two-letter state code isn't real |
+| `check-digit` | The last digit doesn't match. Almost always a typo |
+
+`sex` is `"male"`, `"female"` or `"nonbinary"` (RENAPO added `X` in 2022). People born abroad have `state: null` and `bornAbroad: true`.
+
+## Generate
+
+```ts
+import { generateCurp } from "mexico-utils";
+
+generateCurp({
+  name: "Enrique",
+  firstLastName: "Peña",
+  secondLastName: "Nieto",
+  birthDate: "1966-07-20",
+  sex: "male",
+  state: "Estado de México",
+});
+// "PXNE660720HMCXTN06"
+```
+
+It follows RENAPO's rules:
+
+- Particles like "de", "la", "del" or "van" are skipped, so "de la Cruz" uses "Cruz".
+- "María" and "José" give way to the second name when there is one.
+- Ñ becomes X.
+- When the first four letters spell a rude word, the second one becomes X. That's why Peña Nieto's CURP starts with PXNE.
+- `state` takes a name, any of its codes, or `"NE"` for people born abroad. `birthDate` takes `YYYY-MM-DD` or a `Date`.
+
+Try it in the [playground](../playground?tool=curp), where you can see where each character comes from.
+
+> The 17th character is set by RENAPO to tell apart people who'd otherwise get the same CURP. `generateCurp` uses `0` for people born before 2000 and `A` after, which is what nearly everyone gets. A few people will have different last two characters, so use it to pre-fill or double-check a form, not as the source of truth.

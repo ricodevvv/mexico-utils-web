@@ -1,0 +1,44 @@
+# Amounts in words
+
+"Cantidad con letra", the way invoices, receipts, contracts and checks write amounts.
+
+<Demo kind="amount" value="1234.50" />
+
+## Amounts
+
+```ts
+import { amountToWords } from "mexico-utils";
+
+amountToWords(1234.5);      // "MIL DOSCIENTOS TREINTA Y CUATRO PESOS 50/100 M.N."
+amountToWords(1);           // "UN PESO 00/100 M.N."
+amountToWords("$21,000.99"); // "VEINTIÚN MIL PESOS 99/100 M.N."
+amountToWords(1_000_000);   // "UN MILLÓN DE PESOS 00/100 M.N."
+```
+
+It takes numbers or strings like `"$1,500.00"`, and gets the tricky parts right:
+
+- "un peso", but "dos pesos"
+- "veintiún mil" and "ciento un mil", not "veintiuno mil"
+- "un millón de pesos" when the amount is exact millions
+- cents rounded to two digits
+
+| Option | Values | Default |
+| --- | --- | --- |
+| `currency` | `"MXN"`, `"USD"`, `"EUR"` | `"MXN"` |
+| `case` | `"upper"`, `"lower"` | `"upper"` |
+
+```ts
+amountToWords(100.1, { currency: "USD", case: "lower" });
+// "cien dólares 10/100 USD"
+```
+
+## Whole numbers
+
+```ts
+import { numberToWords } from "mexico-utils";
+
+numberToWords(2026); // "DOS MIL VEINTISÉIS"
+numberToWords(101);  // "CIENTO UNO"
+```
+
+Both go up to 999,999,999,999 and throw a `RangeError` for negative numbers.

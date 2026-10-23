@@ -1,0 +1,31 @@
+# Teléfonos
+
+La gente escribe los números mexicanos de mil formas. Estas funciones los dejan todos iguales.
+
+<Demo kind="phone" />
+
+## Normalizar
+
+```ts
+import { normalizePhone } from "mexico-utils";
+
+normalizePhone("773 152 1627");        // "+527731521627"
+normalizePhone("+52 1 773 152 1627");  // "+527731521627"
+normalizePhone("045 55 1234 5678");    // "+525512345678"
+normalizePhone("01 (773) 152-1627");   // "+527731521627"
+normalizePhone("152 1627");            // null
+```
+
+Entiende `+52` y `0052`, el viejo `+521` que antes llevaban los celulares, y los viejos prefijos `01`, `044` y `045`. El resultado sale en E.164, listo para guardar o mandar a Twilio o WhatsApp.
+
+## Formatear
+
+```ts
+import { formatPhone } from "mexico-utils";
+
+formatPhone("5512345678");  // "55 1234 5678"
+formatPhone("7731521627");  // "773 152 1627"
+formatPhone("7731521627", { international: true }); // "+52 773 152 1627"
+```
+
+La Ciudad de México (55, 56), Guadalajara (33) y Monterrey (81) tienen lada de dos dígitos. Todos los demás, de tres.

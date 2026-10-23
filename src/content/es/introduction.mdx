@@ -1,0 +1,57 @@
+# Introducción
+
+mexico-utils valida, desglosa y genera los datos que pide cualquier formulario mexicano: CURP, RFC, CLABE, NSS, códigos postales, teléfonos y cantidad con letra. No tiene dependencias, trae ESM y CommonJS con tipos, y corre en Node, en el navegador y en edge.
+
+## Instalación
+
+```bash
+npm i mexico-utils
+```
+
+Con pnpm, yarn y bun es igual.
+
+## Un vistazo
+
+```ts
+import { parseCurp, checkRfc, parseClabe, amountToWords } from "mexico-utils";
+
+parseCurp("LOOA531113HTCPBN07");
+// { birthDate: "1953-11-13", sex: "male", state: { name: "Tabasco", ... }, bornAbroad: false }
+
+parseClabe("002010077777777771")?.bank;
+// { code: "002", name: "Banamex" }
+
+amountToWords(1234.5);
+// "MIL DOSCIENTOS TREINTA Y CUATRO PESOS 50/100 M.N."
+```
+
+## Cómo funciona la API
+
+Cada tipo de documento tiene las mismas funciones, así que si aprendes una ya te sabes todas:
+
+| Función | Regresa |
+| --- | --- |
+| `isValidX(valor)` | `true` o `false` |
+| `parseX(valor)` | Los datos desglosados, o `null` |
+| `checkX(valor)` | `{ ok: true, value }` o `{ ok: false, error }` |
+| `xCheckDigit(...)` | El dígito verificador, por si necesitas armar uno |
+
+El valor se limpia antes de revisarlo, así que los espacios, guiones y minúsculas no son problema.
+
+## Errores con tus palabras
+
+`checkX` nunca regresa un mensaje. Regresa un código de error y tú decides qué mostrar. Así tu formulario habla igual que el resto de tu app.
+
+```ts
+const mensajes = {
+  format: "La CURP tiene 18 caracteres",
+  date: "Esa fecha de nacimiento no existe",
+  state: "El estado no es válido",
+  "check-digit": "Revisa que la hayas copiado bien",
+};
+
+const result = checkCurp(valor);
+if (!result.ok) mostrarError(mensajes[result.error]);
+```
+
+Los códigos están tipados, así que TypeScript te avisa si te falta uno.
